@@ -1,31 +1,66 @@
 import sys
-from sqlalchemy import Column, Float, BigInteger, SmallInteger, PrimaryKeyConstraint, ForeignKey, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql.sqltypes import BIGINT, INTEGER, SMALLINT, Integer, BLOB, String, Boolean, TIMESTAMP
-from sqlalchemy.schema import UniqueConstraint
-import os
+from playhouse.shortcuts import ThreadSafeDatabaseMetadata
+from peewee import *
+from EnumTypes import DB_Type
 
-script_dir = os.path.dirname(__file__)
-DATABASE_NAME = "Algo_Trading"
-Path_To_DB = os.path.join("/mnt/CryptoStorage","StockData.db")
-CONNECTION_STRING = "sqlite:///"+ Path_To_DB #Use to connect to sqlite db --->Testing purposes
-MYSQL_DATABASE_CONN_STRING = f"mysql+mysqlconnector://root:naruto123@localhost/{DATABASE_NAME}" #Use to connector straight to the database
-MYSQL_SERVER_CONN_STRING = "mysql+mysqlconnector://root:naruto123@localhost" #Use to connect to the server
-Base = declarative_base()
-DB_EXISTS = False
+    
+def get_database(db_type:DB_Type, db_name:str, **kwargs):
+    try:
+        user= None if 'user' not in kwargs else kwargs['user']
+        password = None if 'password' not in kwargs else kwargs['password']
+        host=None if 'host' not in kwargs else kwargs['host']
+        port=None if 'port' not in kwargs else kwargs['port']
+        pragmas = None if 'pragmas' not in kwargs else kwargs['pragmas']
+        if db_type == DB_Type.SQLite:
+            return SqliteDatabase(db_name, kwargs)
+        elif db_type == DB_Type.MySQL:
+            return MySQLDatabase(db_name, kwargs)
+        elif db_type == DB_Type.PostgreSQL:
+            print(kwargs)
+            return PostgresqlDatabase(db_name, user=user, password=password, host=host, port=port)
+        else:
+            raise ValueError("The db_Type that was provided is not supported...")
+    except ValueError as ex:
+        print(ex)
+    except Exception as ex:
+        print(f"An exception occured: {ex}")
 
+    
+#DATABASE = DB_Handler.get_database(DB_Type.post, "C:\\Users\\torat\\Projects\\dbs\\findb.db" )
+DATABASE = get_database(DB_Type.PostgreSQL, "CryptoData", user='postgres', password='4655', host='localhost', port=5432  )
 
-def get_engine(create_db=False):
-    return engine
+class BaseModel(Model):
+    class Meta:
+        # Instruct peewee to use our thread-safe metadata implementation.
+        model_metadata_class = ThreadSafeDatabaseMetadata
+        database = DATABASE
 
-class StockInfo(Base):
-    intraday_multipliers = Column("intradayMultipliers", BLOB)
+class Symbol(BaseModel):
+    id = AutoField()
+    Name = TextField(null=False, unique=True, column_name="name")
+    ExchangeId = IntegerField(null=False, unique=True, column_name="name")
+    class Meta:
+        table_name = 'Symbol'
 
+class Interval(BaseModel):
+    id = AutoField()
+    interval = TextField(null=False, unique=True, column_name="interval")
+    class Meta:
+        table_name = 'Interval'
 
-class DailyData(Base):
-        self.turnover = turnover
+class Candle(BaseModel):
+
+    open_time = BigIntegerField(null=False, column_name="OpenTime")
+    close_time = BigIntegerField(null=False, column_name="CloseTime")
+    open_price = DoubleField(null=False, column_name="OpenPrice")
+    close_price = DoubleField(null=False, column_name="ClosePrice")
+    high = DoubleField(null=False, column_name="High")
+    low = DoubleField(null=False, column_name="Low")
+    number_of_trades = IntegerField(null=True, column_name="NumberOfTrades")
+    interval_id = IntegerField(null=False, column_name="IntervalId")
+    symbol_id = IntegerField(null=False, column_name="SymbolId")
+
+    class Meta:
+        table_name = 'Candle'
+        primary_key = CompositeKey('open_time', 'close_time', 'symbol_id', 'interval_id')
         
-class LastUpdate(Base):
-    __tablename__ = "LastUpdate"
-    timestamp = Column("timestamp", BigInteger, primary_key=True)
-    name = Column("name", ForeignKey(StockInfo.name), primary_key=True)
