@@ -38,15 +38,15 @@ class BaseModel(Model):
 class Symbol(BaseModel):
     id = AutoField()
     Name = TextField(null=False, unique=True, column_name="name")
-    ExchangeId = IntegerField(null=False, unique=True, column_name="name")
+    ExchangeId = IntegerField(null=False, unique=True, column_name="exchangeid")
     class Meta:
-        table_name = 'Symbol'
+        table_name = 'symbol'
 
 class Interval(BaseModel):
     id = AutoField()
     interval = TextField(null=False, unique=True, column_name="interval")
     class Meta:
-        table_name = 'Interval'
+        table_name = 'interval'
 
 class Candle(BaseModel):
 
@@ -61,6 +61,6 @@ class Candle(BaseModel):
     symbol_id = IntegerField(null=False, column_name="SymbolId")
 
     class Meta:
-        table_name = 'Candle'
+        table_name = 'candle'
         primary_key = CompositeKey('open_time', 'close_time', 'symbol_id', 'interval_id')
         

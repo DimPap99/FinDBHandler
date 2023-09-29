@@ -15,6 +15,14 @@ class DB_Handler(object):
         with self._db.connection_context():
             self._db.create_tables(list)
 
+    def upsertInterval(self, interval:str):
+        with self._db.connection_context():
+            Interval.insert(interval=interval).on_conflict("ignore").execute()
+
     def upsertSymbol(self, name, eId):
         with self._db.connection_context():
-            Symbol.insert(Name=name, ExchangeId=eId)
+            Symbol.insert(Name=name, ExchangeId=eId).on_conflict("ignore").execute()
+
+
+    def upsert_many(self, data):
+        pass
