@@ -7,10 +7,12 @@ class DB_Type(Enum):
 
 class Exchange(Enum):
     Binance = 1,
-    Kraken = 2,
-    Other = 3
+    Kraken = 2,#not implemented yet
+    Other = 3 #not implemented yet
 
 class FinancialDataTypes(Enum):
     Candles = 0,
     Ticks = 1,
-    Sentiment = 2
+    Sentiment = 2,
+    Transactions = 3,
+    StreamEvents = 4

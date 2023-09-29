@@ -26,8 +26,8 @@ def get_database(db_type:DB_Type, db_name:str, **kwargs):
         print(f"An exception occured: {ex}")
 
     
-#DATABASE = DB_Handler.get_database(DB_Type.post, "C:\\Users\\torat\\Projects\\dbs\\findb.db" )
-DATABASE = get_database(DB_Type.PostgreSQL, "CryptoData", user='postgres', password='4655', host='localhost', port=5432  )
+DATABASE = get_database(DB_Type.SQLite, "C:\\Users\\torat\\Projects\\dbs\\AssetInfo.db" )
+#DATABASE = get_database(DB_Type.PostgreSQL, "CryptoData", user='postgres', password='4655', host='localhost', port=5432  )
 
 class BaseModel(Model):
     class Meta:
@@ -63,4 +63,19 @@ class Candle(BaseModel):
     class Meta:
         table_name = 'candle'
         primary_key = CompositeKey('open_time', 'close_time', 'symbol_id', 'interval_id')
+  
+class AssetInfo(BaseModel):
+    """
+        Only when using sqlite:
+        Exists on the main sqlite3 table that is being used for coordination between the smaller sqlite3 databases 
+    """
+    id = AutoField()
+    lastUpdate = BigIntegerField(null=False, column_name="LastUpdate")
+    Symbol = DoubleField(null=False, column_name="Symbol", primary_key=True)
+    isLocked = BooleanField(null=False, column_name="IsLocked")
+
+    class Meta:
+        table_name = 'candle'
+    
+
         

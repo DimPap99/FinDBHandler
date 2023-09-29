@@ -1,6 +1,6 @@
 import csv
 from models import Candle, Symbol, Interval, DATABASE
-from DBHandler import DB_Handler
+from DBClient import DBClient
 from EnumTypes import DB_Type, Exchange
 l = []
 with open('C:\\Users\\torat\\Desktop\\CryptoData\\BTCEUR_1d.csv') as csv_file:
@@ -13,8 +13,8 @@ with open('C:\\Users\\torat\\Desktop\\CryptoData\\BTCEUR_1d.csv') as csv_file:
             break
 symbol = "BTCUSD"
 interval = "1d"
-handler = DB_Handler(DATABASE)
+handler = DBClient(DATABASE)
 
-
-handler.upsertSymbol(symbol, "1")
-
+# handler.create_tables([Candle, Symbol, Interval])
+# handler.upsertSymbol(symbol, str(Exchange.Binance))
+# handler.upsertInterval(interval=interval)
